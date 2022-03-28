@@ -36,6 +36,7 @@ double K1(double u) {
   return exp(-(u * u)/2.0) / sqrt(2.0 * PI);
 }
 
+/*
 //cauchy
 double K2(double u) {
   return 1.0 /(PI*(u * u + 1));
@@ -43,7 +44,7 @@ double K2(double u) {
 
 //uniform
 double K4(double u) { return 0.5; }
-
+*/
 
 
 
@@ -293,10 +294,79 @@ void Step4() {
 }
 
 
+//Теоретическая вероятность выбросов
+void Step5() {
+  double sqrt3 = sqrt(3.0);
+  random_device rd{};
+  mt19937 gen{ rd() };
+  normal_distribution<> normal(0, 1);
+  cauchy_distribution<> cauchy(0, 1);
+  poisson_distribution<> poisson(10.0);
+  uniform_real_distribution<> uniform(-sqrt3, sqrt3);
+
+  const int sizeOfSample[] = { 20,100 }, size = 2;
+
+  //sample_t sample = NORMAL;
+  //sample_t sample = CAUCHY;
+  //sample_t sample = POISSON;
+  sample_t sample = UNIFORM;
+
+  vec data;
+
+  if (sample == NORMAL) cout << "Normal:";
+  else if (sample == CAUCHY) cout << "Cauchy:";
+  else if (sample == POISSON) cout << "Poisson:";
+  else cout << "Uniform:";
+  cout << "\n";
+
+  for (int i = 0; i < size; ++i) {
+    cout << "Size = " << sizeOfSample[i] << "\n";
+
+    for (int j = 0; j < sizeOfSample[i]; ++j) {
+      if (sample == NORMAL) data.push_back(normal(gen));
+      else if (sample == CAUCHY) data.push_back(cauchy(gen));
+      else if (sample == POISSON) data.push_back(poisson(gen));
+      else data.push_back(uniform(gen));
+    }
+
+    sort(data.begin(), data.end());
+
+    for (int i = 0; i < data.size(); ++i)
+      cout << data[i] << " ";
+
+    cout << "\n";
+
+    double Q1, Q3;
+    if (sample == NORMAL) Q1 = -0.674, Q3 = 0.674;
+    else if (sample == CAUCHY) Q1 = -1, Q3 = 1;
+    else if (sample == POISSON) Q1 = 8, Q3 = 12;
+    else Q1 = -0.866, Q3 = 0.866;
+    double X1 = Q1 - 1.5 * (Q3 - Q1), X2 = Q3 + 1.5 * (Q3 - Q1);
+
+    cout << " Q1 = " << Q1;
+    cout << " Q3 = " << Q3 << "\n";
+    cout << " X1 = " << X1;
+    cout << " X2 = " << X2 << "\n";
+
+    //доля выбросов
+    int count = 0;
+    for (int i = 0; i < data.size(); ++i) {
+      if (data[i]<X1 || data[i]>X2)
+        ++count;
+    }
+    cout << "outlier: " << ((double)count) / data.size();
+    cout << "\n\n\n";
+
+    data.clear();
+  }
+}
+
+
 int main() {
-  Step1();
+  //Step1();
   //Step2();
   //Step3();
   //Step4();
+  Step5();
   return 0;
 }
