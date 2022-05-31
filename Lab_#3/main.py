@@ -67,8 +67,8 @@ with open("ch2.txt") as file:
     etalonW.append(float(line))
 
 
-intervals = [[badsensor[i][0] - eps * w[i], badsensor[i][0] + eps * w[i]] for i in range(len(badsensor))]
-eIntervals = [[goodsensor[i][0] - eps * etalonW[i], goodsensor[i][0] + eps * etalonW[i]] for i in range(len(goodsensor))]
+intervals = [[d - eps, d + eps] for d in U1]
+eIntervals = [[d - eps, d + eps] for d in U2]
 
 for i in range(len(intervals)):
   if i == 0:
